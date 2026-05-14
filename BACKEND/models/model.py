@@ -2,8 +2,10 @@ import torch
 import torch.nn as nn
 from torchvision.models import swin_t, Swin_T_Weights
 
-# 🤖 MODEL: SWIN TRANSFORMER WHEAT DISEASE CLASSIFIER
 
+# ============================================================================
+# 🤖 MODEL: SWIN TRANSFORMER WHEAT DISEASE CLASSIFIER
+# ============================================================================
 
 class WheatDiseaseClassifier(nn.Module):
     """
@@ -18,19 +20,19 @@ class WheatDiseaseClassifier(nn.Module):
         Aşama 2 (Epoch 5+)  : Backbone açılır, differential LR uygulanır.
     """
 
-    def __init__(
-        self, num_classes: int, model_name: str = "swin_t", pretrained: bool = True
-    ):
+    def __init__(self, num_classes: int, model_name: str = "swin_t", pretrained: bool = True):
         super(WheatDiseaseClassifier, self).__init__()
 
         self.num_classes = num_classes
-        self.model_name = model_name
+        self.model_name  = model_name
 
+        # ── Backbone ──────────────────────────────────────────────────────────
         if pretrained:
             self.base_model = swin_t(weights=Swin_T_Weights.DEFAULT)
         else:
             self.base_model = swin_t(weights=None)
 
+        # ── Sınıflandırma Kafası ──────────────────────────────────────────────
         # Swin-T çıkış boyutu: 768
         num_features = self.base_model.head.in_features
 
@@ -42,8 +44,12 @@ class WheatDiseaseClassifier(nn.Module):
             nn.Linear(512, num_classes),
         )
 
+    # ── Forward ───────────────────────────────────────────────────────────────
+
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.base_model(x)
+
+    # ── Fine-tuning Yardımcıları ──────────────────────────────────────────────
 
     def freeze_backbone(self):
         """Backbone'u dondurur — yalnızca head eğitilir (Aşama 1)."""
@@ -83,11 +89,13 @@ class WheatDiseaseClassifier(nn.Module):
             },
         ]
 
+    # ── Model Bilgisi ─────────────────────────────────────────────────────────
+
     def model_summary(self):
         """Parametre sayılarını yazdırır."""
-        total = sum(p.numel() for p in self.parameters())
+        total     = sum(p.numel() for p in self.parameters())
         trainable = sum(p.numel() for p in self.parameters() if p.requires_grad)
-        frozen = total - trainable
+        frozen    = total - trainable
         print(f"\n{'─'*50}")
         print(f"  Model          : {self.model_name}")
         print(f"  Num Classes    : {self.num_classes}")
@@ -96,6 +104,10 @@ class WheatDiseaseClassifier(nn.Module):
         print(f"  Frozen         : {frozen:,}")
         print(f"{'─'*50}\n")
 
+
+# ============================================================================
+# 🧪 TEST
+# ============================================================================
 
 if __name__ == "__main__":
     model = WheatDiseaseClassifier(num_classes=15, pretrained=False)
@@ -111,7 +123,7 @@ if __name__ == "__main__":
 
     # Forward pass testi
     dummy = torch.randn(2, 3, 224, 224)
-    out = model(dummy)
-    print(f"Output shape: {out.shape}")  # [2, 15]
+    out   = model(dummy)
+    print(f"Output shape: {out.shape}")   # [2, 15]
     assert out.shape == (2, 15), "❌ Output shape yanlış!"
     print("✅ Model forward pass başarılı.")

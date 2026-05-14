@@ -15,6 +15,9 @@ from dataclasses import dataclass, field
 from typing import Optional, Tuple
 
 
+# ============================================================================
+# 📦 VERİ YAPILARI
+# ============================================================================
 
 @dataclass
 class QualityReport:
@@ -39,6 +42,9 @@ class PreprocessResult:
     processed_size:  Tuple[int, int]
 
 
+# ============================================================================
+# ⚙️ KALİBRASYON EŞİKLERİ
+# ============================================================================
 
 class QualityThresholds:
     BLUR_MIN        = 80.0    # Bu altı → bulanık
@@ -51,6 +57,9 @@ class QualityThresholds:
     GREEN_MIN_RATIO = 0.05    # Görüntünün en az %5'i yeşil olmalı
 
 
+# ============================================================================
+# 🔧 ÖN İŞLEYİCİ
+# ============================================================================
 
 class ImagePreprocessor:
     """
@@ -85,6 +94,7 @@ class ImagePreprocessor:
             tileGridSize= clahe_grid,
         )
 
+    # ── Ana Metod ─────────────────────────────────────────────────────────────
 
     def process(
         self,
@@ -131,6 +141,7 @@ class ImagePreprocessor:
             processed_size = self.target_size,
         )
 
+    # ── Görüntü Yükleme ───────────────────────────────────────────────────────
 
     def _load_to_bgr(self, source) -> np.ndarray:
         """Her formatı BGR numpy array'e çevirir."""
@@ -153,6 +164,7 @@ class ImagePreprocessor:
             raise ValueError(f"Görüntü okunamadı: {path}")
         return bgr
 
+    # ── CLAHE ─────────────────────────────────────────────────────────────────
 
     def _apply_clahe(self, bgr: np.ndarray) -> np.ndarray:
         """
@@ -165,6 +177,7 @@ class ImagePreprocessor:
         lab_clahe = cv2.merge([l_clahe, a, b])
         return cv2.cvtColor(lab_clahe, cv2.COLOR_LAB2BGR)
 
+    # ── Kalite Kontrolü ───────────────────────────────────────────────────────
 
     def _check_quality(self, bgr: np.ndarray) -> QualityReport:
         t = self.thresholds
@@ -227,6 +240,7 @@ class ImagePreprocessor:
             warnings    = warnings,
         )
 
+    # ── Yardımcılar ───────────────────────────────────────────────────────────
 
     def quality_to_dict(self, q: QualityReport) -> dict:
         return {
@@ -240,6 +254,9 @@ class ImagePreprocessor:
         }
 
 
+# ============================================================================
+# 🧪 TEST
+# ============================================================================
 
 if __name__ == "__main__":
     import sys

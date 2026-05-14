@@ -1,49 +1,37 @@
----
-title: Wheat Disease Detection
-emoji: 🌾
-colorFrom: green
-colorTo: yellow
-sdk: docker
-pinned: false
----
+# 🌾 Buğday Hastalık Tespiti ve Çözüm Motoru (Wheat Disease Detection)
 
-# 🌾 Buğday Hastalık Tespiti API (Wheat Disease Detection)
+Bu proje, buğday yaprağı ve başak görüntülerinden hastalıkları derin öğrenme (*Transfer Learning ile EfficientNet-B3*) tespit eden ve çıkan sonuca göre ziraat standartlarında **çözüm önerileri** üreten uçtan uca (End-to-End) bir çözümdür.
 
-Bu proje, buğday yaprağı ve başak görüntülerinden hastalıkları derin öğrenme (**Swin Transformer (Swin-T)**) modeli kullanarak tespit eden ve bir web API'si sunan uçtan uca (End-to-End) bir çözümdür.
-
-Proje, üretime hazır (production-ready) bir altyapıya sahip olup nesne tespiti veya karmaşık segmentasyon işlemlerinden arındırılmış, tamamen yüksek isabet oranlı görüntü sınıflandırmasına (Image Classification) odaklanmıştır.
+Proje safi bir yapay zeka modelinin ötesinde; bir web API'si sunacak şekilde tasarlanmış, üretime hazır (production-ready) bir altyapıya sahiptir.
 
 ---
 
 ## 🎯 Proje Özellikleri
 
-- **15 Farklı Sınıf Tespiti:** Sağlıklı durumlar ve buğdayda sık görülen çeşitli mantar/zararlı hastalıkları (Pas, Külleme, Septoria vb.) dâhil olmak üzere 15 farklı sınıfı ayırt eder.
-- **Model:** Görüntü işleme alanında son teknoloji olan **Swin Transformer Tiny (Swin-T)** mimarisi.
-- **Aşırı Öğrenme Kontrolleri:** Dinamik Learning Rate Scheduler (Cosine Annealing) ve Mixed Precision (AMP) ile optimize edilmiş PyTorch eğitim döngüsü.
-- **Yüksek Performanslı API:** Python tabanlı [FastAPI](https://fastapi.tiangolo.com/) kullanılarak geliştirilmiş, hızlı, asenkron RESTful entegrasyonu.
-- **Kalite Kontrol (Image Quality Control):** Yüklenen fotoğrafın bulanık (blur) olup olmadığını Laplasyan varyans yöntemiyle tespit ederek hatalı tahminlerin önüne geçer.
+- **7 Farklı Sınıf Tespiti:** Sağlıklı (Healthy), Sarı Pas (Yellow Rust), Kahverengi Pas (Brown Rust), Sap Pası (Stem Rust), Külleme (Powdery Mildew), Septoria ve Fusaryum.
+- **Model:** Transfer Learning ile pre-trained [EfficientNet-B3](https://arxiv.org/abs/1905.11946) mimarisi. (Hızlı çıkarım süresi ve yüksek doğruluk için seçilmiştir.)
+- **Aşırı Öğrenme Kontrolleri:** Dinamik Learning Rate Scheduler (Cosine Annealing), early-stopping (planlandı) ve zengin Veri Artırma (Data Augmentation).
+- **Zengin API Mimarisi:** Python tabanlı [FastAPI](https://fastapi.tiangolo.com/) kullanılarak yüksek performanslı RESTful entegrasyonu.
+- **Bilgi Tabanı (Knowledge Base):** Modele bağlı basit bir uzman sistem. Tespiti yapılan hastalığa göre kimyasal/doğal tarım çözümleri ve acil aksiyon planları sunar.
 
 ---
 
 ## 📂 Dizin Yapısı / Mimari
 
 ```text
-wheat_disease_project/
-├── api.py                 # FastAPI uç noktaları (Endpoints) ve Pydantic Şemaları
-├── pipeline.py            # Görüntü ön işleme ve Swin-T model tahmini (Pipeline)
-├── config.py              # Tüm hiperparametreler ve klasör yolları ayarları
-├── preprocessing.py       # Görüntü bulanıklık kontrolü ve boyutlandırma
-├── data/                  # İşlenmiş ve ham veri setleri (gitignore'da)
-├── models/                # class_mapping.json dosyası ve ağırlıklar
-│   ├── checkpoints/       # Eğitilmiş Swin-T .pth model ağırlık dosyaları
-│   ├── evaluate.py        # Modeli test verisi üzerinde değerlendirme betiği
-│   └── model.py           # Model tanımlama (Swin Transformer Backbone)
-├── training/              
-│   └── train.py           # Eğitim (Training & Validation) döngüleri
-├── inference/             
-│   └── predict.py         # Klasör ve resim bazlı yerel tahmin betiği
-├── utils/
-│   └── dataset.py         # PyTorch DataLoader işlemleri ve Augmentation
+wheat-project/
+├── api/
+│   ├── main.py            # FastAPI uç noktaları (Endpoints)
+│   └── knowledge_base.py  # Hastalık -> Çözüm mantık sözlükleri
+├── data/                  # İşlenmiş ve ham veri (gitignore'da)
+├── models/                # Eğitilmiş .pth model ağırlık dosyaları
+├── src/
+│   ├── dataset.py         # PyTorch DataLoader işlemleri ve Augmentation
+│   ├── model.py           # Model tanımlama (EfficientNet Backbone)
+│   ├── train.py           # Eğitim (Training & Validation) döngüleri
+│   └── inference.py       # API'nin modeli kullanmasını sağlayan tekil tahmin (Prediction) class'ı
+├── Dockerfile             # Konteynerizasyon
+├── requirements.txt       # Gerekli kütüphaneler
 └── README.md
 ```
 
@@ -56,79 +44,64 @@ wheat_disease_project/
 Proje için sanal bir ortam (virtual environment) oluşturmanız önerilir.
 
 ```bash
-# Repo klonlandıktan sonra ilgili klasöre gidin
-cd wheat_disease_project
+# Repo clonelandıktan sonra ilgili klasöre gidin
+cd wheat-project
 
-# Gerekli Python kütüphanelerini indirin
-pip install torch torchvision numpy opencv-python Pillow fastapi uvicorn pydantic python-multipart scikit-learn
+# Python paketlerini indirin
+pip install -r requirements.txt
 ```
 
 ### 2️⃣ Model Eğitimi (Training)
 
-Elinizdeki veri setini `data/train`, `data/valid` ve `data/test` altına (her sınıf için bir klasör olacak şekilde) yerleştirin. Ardından eğitimi başlatın:
+Elinizdeki veri setini (Örn: PlantVillage alt setini) `data/processed/train` ve `data/processed/val` altına yerleştirin. Ardından eğitimi başlatın:
 
 ```bash
-python training/train.py
+python src/train.py --data_dir data/processed --epochs 20 --batch_size 32
 ```
-*Not: En iyi ağırlıklar `models/checkpoints/best_swin_model.pth` içerisine otomatik olarak kaydedilecektir.*
+*Not: En iyi ağırlıklar `models/best_model.pth` içerisine kaydedilecektir.*
 
 ---
 
 ## 🌐 API Kullanımı (Inference)
 
-Eğitilmiş modelinizi diğer platformlardan veya frontend üzerinden çağırmak için FastAPI sunucusunu ayağa kaldırın:
+Eğitilmiş modelinizi diğer platformlardan çağırmak için FastAPI sunucusunu ayağa kaldırın:
 
 ```bash
-python api.py
+uvicorn api.main:app --reload
 ```
-*(Varsayılan olarak `http://localhost:8000` adresinde çalışmaya başlar.)*
-
-API çalışmaya başlayınca `http://127.0.0.1:8000/docs` adresinde **Swagger UI** üzerinden test edebilirsiniz. 
-
-### Önemli Uç Noktalar (Endpoints)
-
-- `GET /health` : API'nin ve modelin durumunu kontrol eder.
-- `GET /classes` : Modelin eğiltildiği tüm sınıfların listesini döndürür.
-- `POST /analyze` (veya `/classify`) : Fotoğraf yükleyerek analiz yaptırdığınız ana uç nokta.
+API çalışmaya başlayınca `http://127.0.0.1:8000/docs` adresinde **Swagger UI** üzerinden test edebilirsiniz. `POST /predict/` endpoint'ine bir yaprak görseli yüklemeniz yeterlidir.
 
 ### Örnek API Çıktısı (JSON Response)
-
 ```json
 {
-  "classification": {
-    "predicted_class": "Yellow Rust",
-    "confidence": 0.9821,
-    "is_certain": true,
-    "top3_predictions": [
-      {
-        "class": "Yellow Rust",
-        "score": 0.9821
-      },
-      {
-        "class": "Brown Rust",
-        "score": 0.0125
-      },
-      {
-        "class": "Healthy",
-        "score": 0.0054
-      }
-    ]
+  "success": true,
+  "latency_seconds": 0.125,
+  "prediction": {
+    "class": "yellow_rust",
+    "confidence": 0.9821
   },
-  "quality": {
-    "is_valid": true,
-    "blur_score": 145.6,
-    "warnings": [],
-    "rejection_reason": null
-  },
-  "meta": {
-    "processing_time_ms": 125.4,
-    "image_size": {
-      "width": 640,
-      "height": 640
-    }
+  "disease_details": {
+    "name_tr": "Sarı Pas (Yellow Rust)",
+    "description": "Yapraklarda sarı-portakal renginde püstüller...",
+    "action": "Acil ilaçlama yapılması tavsiye edilir...",
+    "solution": "1. Ruhsatlı triazol veya strobilurin grubu fungisitler kullanın..."
   }
 }
 ```
 
 ---
-**Not:** Bu proje, üretim ortamına (Production) alınmaya uygun, temizlenmiş ve optimize edilmiş bir kod tabanına sahiptir. Büyük model ağırlıkları (335MB+) `.gitignore` kapsamında olduğundan GitHub'a yüklenmez. Canlı sunucuya (VPS, AWS vb.) aktarırken model dosyalarını (`best_swin_model.pth`) manuel olarak veya S3 gibi servisler aracılığıyla sunucuya çekmeniz gerekmektedir.
+
+## 🐳 Docker ile Çalıştırma
+
+Uygulamayı ortam bağımsız (sunucu, cloud vb.) çalıştırmak için tek tuşla Dockerize edebilirsiniz.
+
+```bash
+# Docker imajını oluştur
+docker build -t wheat-disease-api .
+
+# Konteyneri başlat ve 8000 portuna bağla
+docker run -d -p 8000:8000 --name wheat-api wheat-disease-api
+```
+
+---
+**Geliştirici:** (Kendi İsminizi Yazın) | *Bu proje bir Makine Öğrenmesi & Yazılım Mühendisliği portfolyo projesidir.*

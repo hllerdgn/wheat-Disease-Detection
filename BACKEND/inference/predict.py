@@ -16,6 +16,7 @@ from PIL import Image
 from pathlib import Path
 from typing import Optional
 
+# ── Proje path ayarı ──────────────────────────────────────────────────────────
 project_root = Path(__file__).resolve().parent
 if str(project_root) not in sys.path:
     sys.path.append(str(project_root))
@@ -24,6 +25,9 @@ from models.model import WheatDiseaseClassifier
 from utils.dataset import get_transforms
 
 
+# ============================================================================
+# 🔧 MODEL YÜKLEME
+# ============================================================================
 
 def load_model(
     model_path: str,
@@ -77,6 +81,9 @@ def load_model(
     return model
 
 
+# ============================================================================
+# 🔍 TEK GÖRÜNTÜ TAHMİN
+# ============================================================================
 
 def predict_single(
     image_path: str,
@@ -138,6 +145,9 @@ def predict_single(
     }
 
 
+# ============================================================================
+# 📁 KLASÖR TAHMİN
+# ============================================================================
 
 def predict_folder(
     folder_path: str,
@@ -184,6 +194,9 @@ def predict_folder(
     return results
 
 
+# ============================================================================
+# 🖨️ SONUÇ YAZDIR
+# ============================================================================
 
 def print_result(result: dict):
     if result is None:
@@ -200,6 +213,9 @@ def print_result(result: dict):
     print(f"{'─'*55}\n")
 
 
+# ============================================================================
+# 🎬 MAIN
+# ============================================================================
 
 def main():
     parser = argparse.ArgumentParser(
@@ -226,12 +242,14 @@ def main():
 
     args = parser.parse_args()
 
+    # ── Cihaz ─────────────────────────────────────────────────────────────────
     if args.cpu:
         device = torch.device("cpu")
     else:
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"💻 Cihaz: {device}")
 
+    # ── Class Mapping ──────────────────────────────────────────────────────────
     if not Path(args.mapping).exists():
         print(f"❌ Class mapping dosyası bulunamadı: {args.mapping}")
         print("   Önce train.py çalıştırın.")
@@ -243,10 +261,13 @@ def main():
     num_classes = len(idx_to_class)
     print(f"🗂️  Sınıf sayısı: {num_classes}")
 
+    # ── Model ─────────────────────────────────────────────────────────────────
     model = load_model(args.model, num_classes, device)
 
+    # ── Transform ─────────────────────────────────────────────────────────────
     _, val_test_transform = get_transforms()
 
+    # ── Tahmin ────────────────────────────────────────────────────────────────
     all_results = []
 
     if args.image:
@@ -279,6 +300,7 @@ def main():
             print(f"\n📊 Özet: {len(all_results)} görüntü | "
                   f"Kesin: {certain} | Belirsiz: {len(all_results)-certain}")
 
+    # ── JSON Kaydet ───────────────────────────────────────────────────────────
     if args.save and all_results:
         save_path = Path(args.save)
         save_path.parent.mkdir(parents=True, exist_ok=True)

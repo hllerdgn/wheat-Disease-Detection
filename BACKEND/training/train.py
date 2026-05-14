@@ -7,7 +7,7 @@ TRAIN.PY — Swin Transformer Wheat Disease Classifier
     • Aşamalı Fine-tuning (freeze → unfreeze)
     • Detaylı metrik takibi (Accuracy, F1, Precision, Recall)
     • Checkpoint kaydetme (best + periyodik)
-    • Kaldığı yerden devam etme (resume training)
+    • ✨ Kaldığı yerden devam etme (resume training)
 """
 
 import os
@@ -36,10 +36,9 @@ from sklearn.metrics import (
     classification_report,
 )
 
+# ── Proje path ayarı ──────────────────────────────────────────────────────────
 current_dir = Path(__file__).resolve().parent
-project_root = (
-    current_dir.parent if (current_dir.parent / "config.py").exists() else current_dir
-)
+project_root = current_dir.parent if (current_dir.parent / "config.py").exists() else current_dir
 if str(project_root) not in sys.path:
     sys.path.append(str(project_root))
 
@@ -47,6 +46,10 @@ import config
 from utils.dataset import get_dataloaders
 from models.model import WheatDiseaseClassifier
 
+
+# ============================================================================
+# 📝 LOGGER
+# ============================================================================
 
 def setup_logger() -> logging.Logger:
     logger = logging.getLogger("WheatTrainer")
@@ -60,9 +63,7 @@ def setup_logger() -> logging.Logger:
 
     if config.FILE_LOG:
         config.LOGS_DIR.mkdir(parents=True, exist_ok=True)
-        log_file = (
-            config.LOGS_DIR / f"train_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
-        )
+        log_file = config.LOGS_DIR / f"train_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
         fh = logging.FileHandler(log_file, encoding="utf-8")
         fh.setFormatter(formatter)
         logger.addHandler(fh)
@@ -70,6 +71,10 @@ def setup_logger() -> logging.Logger:
 
     return logger
 
+
+# ============================================================================
+# 🎲 REPRODUCIBILITY
+# ============================================================================
 
 def set_seed(seed: int = config.SEED):
     torch.manual_seed(seed)
@@ -81,24 +86,20 @@ def set_seed(seed: int = config.SEED):
         torch.backends.cudnn.benchmark = False
 
 
+# ============================================================================
+# 📊 METRİKLER
+# ============================================================================
+
 def calculate_metrics(preds: np.ndarray, labels: np.ndarray) -> dict:
     """Accuracy, Precision, Recall, F1 ve confusion matrix hesaplar."""
     return {
         "accuracy": float(accuracy_score(labels, preds)),
-        "precision": float(
-            precision_score(labels, preds, average="weighted", zero_division=0)
-        ),
-        "recall": float(
-            recall_score(labels, preds, average="weighted", zero_division=0)
-        ),
+        "precision": float(precision_score(labels, preds, average="weighted", zero_division=0)),
+        "recall": float(recall_score(labels, preds, average="weighted", zero_division=0)),
         "f1_score": float(f1_score(labels, preds, average="weighted", zero_division=0)),
         "per_class_f1": f1_score(labels, preds, average=None, zero_division=0).tolist(),
-        "per_class_precision": precision_score(
-            labels, preds, average=None, zero_division=0
-        ).tolist(),
-        "per_class_recall": recall_score(
-            labels, preds, average=None, zero_division=0
-        ).tolist(),
+        "per_class_precision": precision_score(labels, preds, average=None, zero_division=0).tolist(),
+        "per_class_recall": recall_score(labels, preds, average=None, zero_division=0).tolist(),
         "confusion_matrix": confusion_matrix(labels, preds).tolist(),
     }
 
@@ -106,7 +107,7 @@ def calculate_metrics(preds: np.ndarray, labels: np.ndarray) -> dict:
 def log_metrics(metrics: dict, class_names: list, stage: str, logger: logging.Logger):
     """Metrikleri okunabilir şekilde loglar."""
     logger.info(f"\n{'='*70}")
-    logger.info(f" {stage.upper()} METRİKLERİ")
+    logger.info(f"📊 {stage.upper()} METRİKLERİ")
     logger.info(f"{'='*70}")
     logger.info(f"  Accuracy  : {metrics['accuracy']*100:6.2f}%")
     logger.info(f"  Precision : {metrics['precision']*100:6.2f}%")
@@ -124,6 +125,10 @@ def log_metrics(metrics: dict, class_names: list, stage: str, logger: logging.Lo
 
     logger.info(f"{'='*70}\n")
 
+
+# ============================================================================
+# ⏹️ EARLY STOPPING
+# ============================================================================
 
 class EarlyStopping:
     """
@@ -162,6 +167,10 @@ class EarlyStopping:
         return self.stop
 
 
+# ============================================================================
+# 🏋️ EĞİTİM DÖNGÜSÜ
+# ============================================================================
+
 def train_model():
     logger = setup_logger()
     set_seed()
@@ -174,22 +183,22 @@ def train_model():
     config.print_config()
 
     device = config.DEVICE
-    logger.info(f" Cihaz: {device}")
+    logger.info(f"🚀 Cihaz: {device}")
     for k, v in config.get_device_info().items():
         logger.info(f"  • {k}: {v}")
 
+    # ── AMP Scaler ────────────────────────────────────────────────────────────
     use_amp = config.USE_MIXED_PRECISION and torch.cuda.is_available()
     scaler = GradScaler(init_scale=config.SCALER_INIT_SCALE) if use_amp else None
     logger.info(f"⚡ Mixed Precision (AMP): {'Aktif' if use_amp else 'Devre Dışı'}")
 
+    # ── Veri ──────────────────────────────────────────────────────────────────
     logger.info("📦 Veri setleri yükleniyor...")
-    train_loader, val_loader, test_loader, class_to_idx, class_weights = (
-        get_dataloaders(
-            data_dir=str(config.DATA_DIR),
-            batch_size=config.BATCH_SIZE,
-            num_workers=config.NUM_WORKERS,
-            pin_memory=config.PIN_MEMORY,
-        )
+    train_loader, val_loader, test_loader, class_to_idx, class_weights = get_dataloaders(
+        data_dir=str(config.DATA_DIR),
+        batch_size=config.BATCH_SIZE,
+        num_workers=config.NUM_WORKERS,
+        pin_memory=config.PIN_MEMORY,
     )
 
     config.CLASS_TO_IDX = class_to_idx
@@ -203,6 +212,7 @@ def train_model():
         json.dump(config.IDX_TO_CLASS, f, indent=4, ensure_ascii=False)
     logger.info(f"✅ Class mapping kaydedildi: {mapping_path}")
 
+    # ── Model ─────────────────────────────────────────────────────────────────
     logger.info("🤖 Model oluşturuluyor...")
     model = WheatDiseaseClassifier(
         num_classes=config.NUM_CLASSES,
@@ -215,25 +225,22 @@ def train_model():
     if config.FREEZE_BACKBONE_INITIALLY:
         model.freeze_backbone()
 
+    # ── Loss ──────────────────────────────────────────────────────────────────
     class_weights = class_weights.to(device)
     criterion = nn.CrossEntropyLoss(
         weight=class_weights,
         label_smoothing=config.LABEL_SMOOTHING,
     )
-    logger.info(
-        f"📉 Loss: CrossEntropyLoss | Label Smoothing: {config.LABEL_SMOOTHING}"
-    )
+    logger.info(f"📉 Loss: CrossEntropyLoss | Label Smoothing: {config.LABEL_SMOOTHING}")
 
-    early_stopping = (
-        EarlyStopping(
-            patience=config.EARLY_STOPPING_PATIENCE,
-            delta=config.EARLY_STOPPING_DELTA,
-            logger=logger,
-        )
-        if config.USE_EARLY_STOPPING
-        else None
-    )
+    # ── Early Stopping ────────────────────────────────────────────────────────
+    early_stopping = EarlyStopping(
+        patience=config.EARLY_STOPPING_PATIENCE,
+        delta=config.EARLY_STOPPING_DELTA,
+        logger=logger,
+    ) if config.USE_EARLY_STOPPING else None
 
+    # ── Tarihçe ───────────────────────────────────────────────────────────────
     history = {m: [] for m in config.TRACK_METRICS}
     history["val_f1"] = []
 
@@ -241,6 +248,7 @@ def train_model():
     best_val_f1 = 0.0
     val_metrics_log = []
 
+    # ── Checkpoint Resume (Sadece model ağırlıkları, optimizer/scheduler sıfır) ──
     resume_path = config.CHECKPOINTS_DIR / "checkpoint_epoch_030.pth"
     start_epoch = 1  # Eğitimi 1'den başlat (sadece ağırlıklar alınır)
 
@@ -248,15 +256,14 @@ def train_model():
         logger.info(f"♻️  Önceki model ağırlıkları yükleniyor: {resume_path}")
         checkpoint = torch.load(resume_path, map_location=device)
         # SADECE MODEL AĞIRLIKLARINI YÜKLE (optimizer/scheduler resetlenecek)
-        model.load_state_dict(checkpoint["model_state_dict"])
+        model.load_state_dict(checkpoint['model_state_dict'])
         # 384px'e geçtiğimiz için backbone'un açık olduğundan emin olalım
         model.unfreeze_backbone()
-        logger.info(
-            "✅ Model ağırlıkları aktarıldı. Optimizer ve scheduler sıfırdan başlatılıyor."
-        )
+        logger.info("✅ Model ağırlıkları aktarıldı. Optimizer ve scheduler sıfırdan başlatılıyor.")
     else:
         logger.warning("⚠️ Checkpoint bulunamadı, eğitim sıfırdan başlıyor!")
 
+    # ── Optimizer & Scheduler (Taze başlangıç) ─────────────────────────────────
     # Differential LR için parametre grupları
     backbone_lr = config.LEARNING_RATE / config.LR_DIVISOR
     head_lr = config.LEARNING_RATE
@@ -278,15 +285,16 @@ def train_model():
 
     total_start = time.time()
 
+    # ══════════════════════════════════════════════════════════════════════════
     # EPOCH DÖNGÜSÜ
+    # ══════════════════════════════════════════════════════════════════════════
     for epoch in range(start_epoch, config.EPOCHS + 1):
         epoch_start = time.time()
 
+        # ── Backbone Unfreeze (aşamalı fine-tuning) ───────────────────────────
         if epoch == config.UNFREEZE_EPOCH and config.FREEZE_BACKBONE_INITIALLY:
             logger.info(f"\n{'='*70}")
-            logger.info(
-                f"[Epoch {epoch}] 🔓 Backbone açılıyor — Differential LR uygulanıyor"
-            )
+            logger.info(f"[Epoch {epoch}] 🔓 Backbone açılıyor — Differential LR uygulanıyor")
             logger.info(f"{'='*70}")
 
             model.unfreeze_backbone()
@@ -306,6 +314,7 @@ def train_model():
                 logger.info(f"  Backbone LR : {backbone_lr}")
                 logger.info(f"  Head LR     : {head_lr}")
 
+        # ── TRAIN ─────────────────────────────────────────────────────────────
         model.train()
         running_loss = 0.0
         batch_count = 0
@@ -325,9 +334,7 @@ def train_model():
                     loss = criterion(outputs, labels)
                 scaler.scale(loss).backward()
                 scaler.unscale_(optimizer)
-                torch.nn.utils.clip_grad_norm_(
-                    model.parameters(), config.GRADIENT_CLIP_MAX_NORM
-                )
+                torch.nn.utils.clip_grad_norm_(model.parameters(), config.GRADIENT_CLIP_MAX_NORM)
                 scaler.step(optimizer)
                 scaler.update()
             else:
@@ -337,9 +344,7 @@ def train_model():
                     logger.error(f"❌ NaN loss — epoch {epoch}, batch {batch_idx}")
                     continue
                 loss.backward()
-                torch.nn.utils.clip_grad_norm_(
-                    model.parameters(), config.GRADIENT_CLIP_MAX_NORM
-                )
+                torch.nn.utils.clip_grad_norm_(model.parameters(), config.GRADIENT_CLIP_MAX_NORM)
                 optimizer.step()
 
             running_loss += loss.item() * images.size(0)
@@ -357,6 +362,7 @@ def train_model():
 
         epoch_train_loss = running_loss / len(train_loader.dataset)
 
+        # ── VALIDATION ────────────────────────────────────────────────────────
         if epoch % config.VALIDATION_INTERVAL == 0 or epoch == config.EPOCHS:
             model.eval()
             val_loss = 0.0
@@ -396,6 +402,7 @@ def train_model():
         current_lr = optimizer.param_groups[0]["lr"]
         epoch_time = time.time() - epoch_start
 
+        # ── History ───────────────────────────────────────────────────────────
         history["train_loss"].append(epoch_train_loss)
         history["val_loss"].append(epoch_val_loss)
         history["val_accuracy"].append(epoch_val_acc)
@@ -403,8 +410,9 @@ def train_model():
         history["learning_rate"].append(current_lr)
         history["epoch_time"].append(epoch_time)
 
+        # ── Epoch Özeti ───────────────────────────────────────────────────────
         logger.info(
-            f"\n Epoch {epoch:02d}/{config.EPOCHS} — "
+            f"\n✅ Epoch {epoch:02d}/{config.EPOCHS} — "
             f"Train Loss: {epoch_train_loss:.4f} | "
             f"Val Loss: {epoch_val_loss:.4f} | "
             f"Val Acc: {epoch_val_acc*100:.2f}% | "
@@ -413,6 +421,7 @@ def train_model():
             f"Süre: {epoch_time:.1f}s"
         )
 
+        # ── Best Model Kaydet ─────────────────────────────────────────────────
         if epoch_val_acc > best_val_acc:
             best_val_acc = epoch_val_acc
             best_val_f1 = epoch_val_f1
@@ -444,23 +453,22 @@ def train_model():
                 f"(Acc: {best_val_acc*100:.2f}% | F1: {best_val_f1*100:.2f}%)"
             )
 
+        # ── Periyodik Checkpoint ──────────────────────────────────────────────
         if epoch % config.SAVE_CHECKPOINT_INTERVAL == 0:
             periodic_path = config.CHECKPOINTS_DIR / f"checkpoint_epoch_{epoch:03d}.pth"
-            torch.save(
-                {
-                    "epoch": epoch,
-                    "model_state_dict": model.state_dict(),
-                    "optimizer_state_dict": optimizer.state_dict(),
-                    "scheduler_state_dict": scheduler.state_dict(),
-                    "val_acc": epoch_val_acc,
-                    "history": history,
-                },
-                periodic_path,
-            )
+            torch.save({
+                "epoch": epoch,
+                "model_state_dict": model.state_dict(),
+                "optimizer_state_dict": optimizer.state_dict(),
+                "scheduler_state_dict": scheduler.state_dict(),
+                "val_acc": epoch_val_acc,
+                "history": history,
+            }, periodic_path)
             logger.info(f"  📌 Periyodik checkpoint: {periodic_path.name}")
 
         logger.info("─" * 70)
 
+        # ── Early Stopping Kontrolü ───────────────────────────────────────────
         if early_stopping and early_stopping(epoch_val_acc):
             logger.info(f"⏹️  Early stopping tetiklendi — Epoch {epoch}")
             break
@@ -497,12 +505,9 @@ def train_model():
     log_metrics(test_metrics, class_names, "TEST", logger)
 
     # sklearn classification report
-    logger.info(
-        "📋 Sklearn Classification Report:\n"
-        + classification_report(
-            test_labels, test_preds, target_names=class_names, zero_division=0
-        )
-    )
+    logger.info("📋 Sklearn Classification Report:\n" +
+                classification_report(test_labels, test_preds,
+                                      target_names=class_names, zero_division=0))
 
     # ══════════════════════════════════════════════════════════════════════════
     # SONUÇ & KAYIT
@@ -542,9 +547,7 @@ def train_model():
     }
 
     config.RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-    result_path = (
-        config.RESULTS_DIR / f"results_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-    )
+    result_path = config.RESULTS_DIR / f"results_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
     with open(result_path, "w", encoding="utf-8") as f:
         json.dump(results, f, indent=4)
     logger.info(f"  📄 Sonuç raporu: {result_path}")
@@ -552,6 +555,10 @@ def train_model():
 
     return model, history, results
 
+
+# ============================================================================
+# 🎬 MAIN
+# ============================================================================
 
 if __name__ == "__main__":
     logger = setup_logger()

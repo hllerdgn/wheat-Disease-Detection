@@ -3,8 +3,12 @@ import torch
 from pathlib import Path
 import logging
 
+# ============================================================================
+# 📋 CONFIG.PY - SWIN TRANSFORMER WHEAT DISEASE CLASSIFIER
 # Veri Seti: 15 Sınıf | Train: 13104 | Valid: 300 | Test: 750
+# ============================================================================
 
+# --- Dizin Ayarlaması ---
 BASE_DIR = Path(__file__).resolve().parent
 DATA_DIR = BASE_DIR / "data"
 MODELS_DIR = BASE_DIR / "models"
@@ -13,7 +17,9 @@ CHECKPOINTS_DIR = MODELS_DIR / "checkpoints"
 KNOWLEDGE_BASE_DIR = BASE_DIR / "knowledge_base"
 RESULTS_DIR = BASE_DIR / "results"
 
+# ============================================================================
 #  VERİ SETİ SINIF BİLGİLERİ
+# ============================================================================
 
 # Veri setindeki tüm sınıflar (train klasöründeki sırayla - alfabetik)
 DATASET_CLASSES = [
@@ -45,7 +51,11 @@ TOTAL_TRAIN = 13104
 TOTAL_VALID = 300
 TOTAL_TEST = 750
 
+# ============================================================================
+# ⚙️ EĞİTİM KONFİGÜRASYONU
+# ============================================================================
 
+# --- Temel Eğitim Parametreleri ---
 # Colab T4/A100 için 32 güvenli; OOM yaşarsanız 16'ya düşürün
 BATCH_SIZE = 8
 # Colab'da 2 en kararlı değerdir
@@ -62,18 +72,24 @@ LR_DIVISOR = 5
 # Scheduler minimum LR
 MIN_LEARNING_RATE = 1e-07
 
+# --- Model Konfigürasyonu ---
 MODEL_NAME = "swin_t"       # Swin Transformer Tiny
 IMG_SIZE = 224               
 PRETRAINED = True           # ImageNet pre-trained weights
 
+# --- Gelişmiş Eğitim Ayarları ---
 LABEL_SMOOTHING = 0.1       # Overconfidence engellemek için
 WEIGHT_DECAY = 0.05        # L2 regularization
 GRADIENT_CLIP_MAX_NORM = 0.5  # Transformer'larda gradient explosion önleme
 
+# --- Mixed Precision (AMP) ---
 # Colab GPU'da ~2x hız artışı, bellek tasarrufu sağlar
 USE_MIXED_PRECISION = False
 SCALER_INIT_SCALE = 65536.0
 
+# ============================================================================
+# 🔧 FINE-TUNING STRATEJİSİ
+# ============================================================================
 
 # Aşama 1 (Epoch 1-4):  Backbone dondurulur, sadece head eğitilir
 # Aşama 2 (Epoch 5+):   Backbone açılır, differential LR uygulanır
@@ -81,21 +97,33 @@ FREEZE_BACKBONE_INITIALLY = True
 UNFREEZE_EPOCH = 5
 DIFFERENTIAL_LR = True
 
+# ============================================================================
+# 📊 KAYDETME & CHECKPOINT
+# ============================================================================
 
 SAVE_BEST_MODEL = True
 SAVE_CHECKPOINT_INTERVAL = 5   # Her 5 epoch'ta checkpoint
 MODEL_CHECKPOINT_PATH = CHECKPOINTS_DIR / "best_swin_model.pth"
 FINAL_MODEL_PATH = MODELS_DIR / "final_swin_model.pth"
 
+# ============================================================================
+# ⏹️ EARLY STOPPING
+# ============================================================================
 
 USE_EARLY_STOPPING = True
 EARLY_STOPPING_PATIENCE = 15    # 12 epoch iyileşme olmazsa dur
 EARLY_STOPPING_DELTA = 0.001   # Minimum iyileşme eşiği
 
+# ============================================================================
+# 🎲 REPRODUCIBILITY
+# ============================================================================
 
 SEED = 42
 DETERMINISTIC = True
 
+# ============================================================================
+# 💻 CİHAZ AYARLARI
+# ============================================================================
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 CUDA_AVAILABLE = torch.cuda.is_available()
@@ -111,6 +139,9 @@ else:
     GPU_NAME = "CPU"
     GPU_MEMORY = 0
 
+# ============================================================================
+# 📡 API & INFERENCE
+# ============================================================================
 
 API_HOST = "0.0.0.0"
 API_PORT = 8000
@@ -118,22 +149,34 @@ API_DEBUG = False
 INFERENCE_TIMEOUT = 30
 CONFIDENCE_THRESHOLD = 0.5     # Bu altında "Belirsiz" döndür
 
+# ============================================================================
+# 📝 LOGGING
+# ============================================================================
 
 LOG_LEVEL = logging.INFO
 LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 CONSOLE_LOG = True
 FILE_LOG = True
 
+# ============================================================================
+# 🔍 VALİDASYON
+# ============================================================================
 
 CALCULATE_CLASS_WEIGHTS = True
 VALIDATION_INTERVAL = 1        # Her epoch validate et
 PRINT_INTERVAL = 20            # Her 20 batch'te log
 
+# ============================================================================
+# 📈 SCHEDULER
+# ============================================================================
 
 SCHEDULER_TYPE = "cosine"
 COSINE_T_MAX = EPOCHS
 COSINE_ETA_MIN = MIN_LEARNING_RATE
 
+# ============================================================================
+# 📊 METRİK TAKİBİ
+# ============================================================================
 
 TRACK_METRICS = [
     "train_loss",
@@ -152,6 +195,9 @@ RESULTS_JSON = RESULTS_DIR / "final_results.json"
 CLASS_TO_IDX = {}
 IDX_TO_CLASS = {}
 
+# ============================================================================
+# 📁 KLASÖR OLUŞTURMA
+# ============================================================================
 
 def create_directories():
     dirs = [DATA_DIR, MODELS_DIR, LOGS_DIR,
@@ -163,6 +209,9 @@ def create_directories():
 
 create_directories()
 
+# ============================================================================
+# ✅ KONFİGÜRASYON DOĞRULAMA
+# ============================================================================
 
 def validate_config():
     warnings = []
@@ -187,6 +236,9 @@ def validate_config():
 
 config_warnings = validate_config()
 
+# ============================================================================
+# 🖨️ KONFİGÜRASYON YAZDIR
+# ============================================================================
 
 def print_config():
     print("\n" + "=" * 80)
@@ -246,6 +298,9 @@ def print_config():
     print("\n" + "=" * 80 + "\n")
 
 
+# ============================================================================
+# 🔧 YARDIMCI FONKSİYONLAR
+# ============================================================================
 
 def get_device_info():
     return {

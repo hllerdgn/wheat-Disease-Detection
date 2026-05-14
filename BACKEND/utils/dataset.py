@@ -7,12 +7,16 @@ from torchvision import transforms, datasets
 from torch.utils.data import DataLoader, Dataset
 
 
+# ============================================================================
 # 📐 GÖRÜNTÜ BOYUTU
+# ============================================================================
 
 IMG_SIZE = 224
 
 
+# ============================================================================
 # 🔄 VERİ DÖNÜŞÜMLER (TRANSFORMS)
+# ============================================================================
 
 def get_transforms():
     """
@@ -50,6 +54,9 @@ def get_transforms():
     return train_transform, val_test_transform
 
 
+# ============================================================================
+# 🖼️ GÜVENLİ GÖRÜNTÜ OKUYUCU
+# ============================================================================
 
 def robust_pil_loader(path: str):
     """
@@ -70,6 +77,9 @@ def robust_pil_loader(path: str):
                 raise e
 
 
+# ============================================================================
+# 🔧 VALID KLASÖRÜ SINIF ADINI DÜZELTİCİ
+# ============================================================================
 
 class RemappedImageFolder(datasets.ImageFolder):
     """
@@ -140,6 +150,9 @@ class RemappedImageFolder(datasets.ImageFolder):
             print(f"⚠️  Toplam {skipped} örnek atlandı (eşleşme bulunamadı)")
 
 
+# ============================================================================
+# ⚖️ CLASS WEIGHTS HESAPLAMA
+# ============================================================================
 
 def compute_class_weights(targets, num_classes):
     """
@@ -169,6 +182,9 @@ def compute_class_weights(targets, num_classes):
     return torch.FloatTensor(class_weights)
 
 
+# ============================================================================
+# 🚀 ANA FONKSİYON: DATALOADER'LAR
+# ============================================================================
 
 def get_dataloaders(
     data_dir: str,
@@ -206,7 +222,9 @@ def get_dataloaders(
 
     train_transform, val_test_transform = get_transforms()
 
+    # ------------------------------------------------------------------
     # 1. TRAIN DATASET
+    # ------------------------------------------------------------------
     train_dataset = datasets.ImageFolder(
         root=train_dir,
         transform=train_transform,
@@ -219,7 +237,9 @@ def get_dataloaders(
         count = train_dataset.targets.count(idx)
         print(f"   [{idx:2d}] {cls:<25} → {count} görsel")
 
+    # ------------------------------------------------------------------
     # 2. VALID DATASET (Remap ile)
+    # ------------------------------------------------------------------
     # Varsayılan remap: blast_test_valid → Blast
     if valid_remap is None:
         valid_remap = {"blast_test_valid": "Blast"}
@@ -233,7 +253,9 @@ def get_dataloaders(
     print(f"\n✅ Valid sınıfları ({len(valid_dataset.class_to_idx)} adet) — "
           f"Remap uygulandı: {valid_remap}")
 
+    # ------------------------------------------------------------------
     # 3. TEST DATASET
+    # ------------------------------------------------------------------
     test_dataset = datasets.ImageFolder(
         root=test_dir,
         transform=val_test_transform,
@@ -241,7 +263,9 @@ def get_dataloaders(
     )
     print(f"\n✅ Test sınıfları ({len(test_dataset.class_to_idx)} adet)")
 
+    # ------------------------------------------------------------------
     # 4. CLASS WEIGHTS (Dengesizlik için)
+    # ------------------------------------------------------------------
     class_weights = compute_class_weights(
         targets=train_dataset.targets,
         num_classes=len(class_to_idx)
@@ -251,7 +275,9 @@ def get_dataloaders(
     for i, w in enumerate(class_weights):
         print(f"   [{i:2d}] {idx_to_class[i]:<25} → weight: {w:.4f}")
 
+    # ------------------------------------------------------------------
     # 5. DATALOADERS
+    # ------------------------------------------------------------------
     train_loader = DataLoader(
         train_dataset,
         batch_size=batch_size,
@@ -285,6 +311,9 @@ def get_dataloaders(
     return train_loader, valid_loader, test_loader, class_to_idx, class_weights
 
 
+# ============================================================================
+# 🧪 TEST
+# ============================================================================
 
 if __name__ == "__main__":
     import sys
