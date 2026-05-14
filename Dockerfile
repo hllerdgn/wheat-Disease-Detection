@@ -28,3 +28,4 @@ EXPOSE 7860
 # Gradio kullanacaksanız: python app.py
 # FastAPI kullanacaksanız: uvicorn api:app --host 0.0.0.0 --port 7860
 CMD ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "7860"]
+# CMD ["python", "app.py"]
