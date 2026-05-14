@@ -119,6 +119,15 @@ def _validate_image(file: UploadFile):
 # ENDPOINTS
 # ============================================================================
 
+@app.get("/")
+async def root():
+    return {
+        "message": "Wheat Disease Classification API is running!",
+        "status": "online",
+        "docs": "/docs",
+        "endpoints": ["/analyze", "/health", "/classes"]
+    }
+
 @app.get("/health", response_model=HealthResponse)
 async def health():
     ready = pipeline is not None
