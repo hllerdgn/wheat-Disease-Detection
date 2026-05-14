@@ -1,3 +1,12 @@
+---
+title: Wheat Disease Detection
+emoji: 🌾
+colorFrom: green
+colorTo: yellow
+sdk: docker
+pinned: false
+---
+
 # 🌾 Buğday Hastalık Tespiti API (Wheat Disease Detection)
 
 Bu proje, buğday yaprağı ve başak görüntülerinden hastalıkları derin öğrenme (**Swin Transformer (Swin-T)**) modeli kullanarak tespit eden ve bir web API'si sunan uçtan uca (End-to-End) bir çözümdür.
