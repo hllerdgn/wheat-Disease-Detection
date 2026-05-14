@@ -1,0 +1,27 @@
+{
+  "healthy": {
+    "name": "Healthy (Sağlıklı)",
+    "description": "Bitki yaprağı sağlıklı görünüyor, hastalık belirtisi veya leke tespit edilmedi.",
+    "solution": "Mevcut sulama ve gübreleme rutinine devam edin. Düzenli olarak bitki gelişimini gözlemleyin."
+  },
+  "leaf_rust": {
+    "name": "Leaf Rust (Yaprak Pası)",
+    "description": "Yaprak yüzeyinde küçük, turuncu veya kahverengi püstüller (pas lekeleri) görülür. Genellikle rüzgarla yayılır.",
+    "solution": "Doğal çözüm olarak neem yağı (tesbih ağacı yağı) spreyi uygulayabilirsiniz. Hastalıklı yaprakları budayın ve bitkiler arası havalandırmayı artırın."
+  },
+  "stem_rust": {
+    "name": "Stem Rust (Kara Pas / Gövde Pası)",
+    "description": "Gövde ve yapraklarda koyu kırmızı-kahverengi, uzunlamasına lezyonlar. Epidemik boyutlara ulaşabilir.",
+    "solution": "Dayanıklı tohum türleri tercih edilmeli. Hastalık başlangıcında zenginleştirilmiş kompost çayı spreylenebilir, ancak yayılım engellenemiyorsa enfekte bölgeler tamamen yok edilmelidir."
+  },
+  "septoria": {
+    "name": "Septoria (Septorya Yaprak Lekesi)",
+    "description": "Alt yapraklarda sarı haleli kahverengi ölü doku lekeleri (nekroz) olarak başlar. Nemli havaları sever.",
+    "solution": "Mantari bir hastalıktır. Toprak yüzeyini malçlayarak su sıçramasını önleyin. Doğal mantar ilacı olarak seyreltilmiş süt veya karbonatlı su karşımı spreyleyebilirsiniz."
+  },
+  "yellow_rust": {
+    "name": "Yellow Rust (Sarı Pas)",
+    "description": "Yaprak damarlarına paralel, sarımsı-turuncu renkte çizgiler halinde püstüller oluşur.",
+    "solution": "Erken dönemde saptandığında bitki direncini artıran sıvı deniz yosunu ekstraktları uygulanabilir. Nem kontrolü çok önemlidir."
+  }
+}

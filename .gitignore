@@ -1,0 +1,110 @@
+# ==========================================
+# WHEAT DISEASE DETECTION PROJECT .gitignore
+# ==========================================
+
+# --- OS Generated Files ---
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# --- IDEs & Editors ---
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
+
+# --- Python & Backend (BACKEND/) ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environments
+.venv/
+venv/
+ENV/
+env/
+env.bak/
+venv.bak/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# --- Models & Data ---
+# Large model weights (Use Git LFS for these)
+# *.pt
+# *.pth
+# *.ckpt
+# *.h5
+# *.onnx
+# *.weights
+# *.pb
+
+# Model directories (Keep checkpoints for deployment if needed)
+# BACKEND/models/checkpoints/
+BACKEND/models/logs/
+BACKEND/results/
+BACKEND/data/
+BACKEND/logs/
+results/
+data/
+logs/
+
+# Exception: Keep configuration files in models
+!BACKEND/models/*.json
+!BACKEND/models/*.py
+!BACKEND/models/__init__.py
+
+# --- Frontend (FRONTEND/) ---
+FRONTEND/node_modules/
+FRONTEND/dist/
+FRONTEND/dist-ssr/
+FRONTEND/*.local
+FRONTEND/.vercel
+FRONTEND/.next/
+
+# Logs
+FRONTEND/npm-debug.log*
+FRONTEND/yarn-debug.log*
+FRONTEND/yarn-error.log*
+FRONTEND/pnpm-debug.log*
+
+# Environment Variables (IMPORTANT: Do not push secrets)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env*
+kaggle.json
+
+# --- Vercel ---
+.vercel
+
+# --- Misc ---
+download_test.py
+# (Only if you don't want to share testing scripts)
