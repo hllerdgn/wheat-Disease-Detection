@@ -14,7 +14,7 @@ Buğday hastalıklarını Swin Transformer (Swin-T) mimarisi kullanarak tespit e
 
 ## Özellikler
 - **Model:** Swin-T (Transformer)
-- **Doğruluk:** %98+
+- **Doğruluk:** %88+
 - **Framework:** FastAPI & PyTorch
 - **Platform:** Hugging Face Spaces (Docker)
 
