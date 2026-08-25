@@ -1,27 +1,329 @@
 {
   "healthy": {
-    "name": "Healthy (Sağlıklı)",
-    "description": "Bitki yaprağı sağlıklı görünüyor, hastalık belirtisi veya leke tespit edilmedi.",
-    "solution": "Mevcut sulama ve gübreleme rutinine devam edin. Düzenli olarak bitki gelişimini gözlemleyin."
-  },
-  "leaf_rust": {
-    "name": "Leaf Rust (Yaprak Pası)",
-    "description": "Yaprak yüzeyinde küçük, turuncu veya kahverengi püstüller (pas lekeleri) görülür. Genellikle rüzgarla yayılır.",
-    "solution": "Doğal çözüm olarak neem yağı (tesbih ağacı yağı) spreyi uygulayabilirsiniz. Hastalıklı yaprakları budayın ve bitkiler arası havalandırmayı artırın."
-  },
-  "stem_rust": {
-    "name": "Stem Rust (Kara Pas / Gövde Pası)",
-    "description": "Gövde ve yapraklarda koyu kırmızı-kahverengi, uzunlamasına lezyonlar. Epidemik boyutlara ulaşabilir.",
-    "solution": "Dayanıklı tohum türleri tercih edilmeli. Hastalık başlangıcında zenginleştirilmiş kompost çayı spreylenebilir, ancak yayılım engellenemiyorsa enfekte bölgeler tamamen yok edilmelidir."
-  },
-  "septoria": {
-    "name": "Septoria (Septorya Yaprak Lekesi)",
-    "description": "Alt yapraklarda sarı haleli kahverengi ölü doku lekeleri (nekroz) olarak başlar. Nemli havaları sever.",
-    "solution": "Mantari bir hastalıktır. Toprak yüzeyini malçlayarak su sıçramasını önleyin. Doğal mantar ilacı olarak seyreltilmiş süt veya karbonatlı su karşımı spreyleyebilirsiniz."
+    "name": "Healthy",
+    "name_tr": "Sağlıklı",
+    "scientific_name": "Triticum aestivum",
+    "severity": "healthy",
+    "risk_level": "none",
+    "short_desc": "Bitki dokusu sağlıklı, hastalık belirtisi veya leke tespit edilmedi.",
+    "description": "Bitki dokusu sağlıklı görünüyor, yapraklarda kloroz veya nekroz lezyonları, püstüller veya deformasyon tespit edilmedi.",
+    "symptoms": [
+      "Canlı yeşil yaprak rengi",
+      "Düzgün yaprak yüzeyi ve lezyonsuz doku",
+      "Normal başak ve gövde gelişimi"
+    ],
+    "cultural_treatment": [
+      "Mevcut sulama ve dengeli gübreleme takvimine devam edin.",
+      "Düzenli tarla gözlemi yaparak erken enfeksiyon riskini takip edin.",
+      "Yabancı ot kontrolünü sağlayarak hava sirkülasyonunu koruyun."
+    ],
+    "chemical_treatment": [
+      "Herhangi bir kimyasal uygulama gerekmemektedir."
+    ]
   },
   "yellow_rust": {
-    "name": "Yellow Rust (Sarı Pas)",
-    "description": "Yaprak damarlarına paralel, sarımsı-turuncu renkte çizgiler halinde püstüller oluşur.",
-    "solution": "Erken dönemde saptandığında bitki direncini artıran sıvı deniz yosunu ekstraktları uygulanabilir. Nem kontrolü çok önemlidir."
+    "name": "Yellow Rust",
+    "name_tr": "Sarı Pas (Çizgi Pası)",
+    "scientific_name": "Puccinia striiformis f. sp. tritici",
+    "severity": "disease",
+    "risk_level": "high",
+    "short_desc": "Yaprak damarlarına paralel, sarı-turuncu şerit püstüller.",
+    "description": "Puccinia striiformis etmeninin neden olduğu, serin ve nemli koşullarda hızla yayılan yıkıcı bir pas hastalığıdır. Yaprak damarlarına paralel dizilmiş sarı püstüllerle karakterizedir.",
+    "symptoms": [
+      "Yaprak damarları boyunca uzanan sarı-turuncu püstül şeritleri",
+      "İleri evrede yaprakların kuruyup sararması",
+      "Klorotik çizgiler ve fotosentez alanının kaybı"
+    ],
+    "cultural_treatment": [
+      "Bölgeye uygun dayanıklı veya toleranslı tohum çeşitleri tercih edilmelidir.",
+      "Aşırı azotlu gübrelemeden kaçınılmalı, dengeli fosfor ve potasyum verilmelidir.",
+      "Ekim sıklığı iyi ayarlanmalı, hava akımı sağlanmalıdır."
+    ],
+    "chemical_treatment": [
+      "İlk püstül belirtileri görüldüğünde sistemik triazole (Tebuconazole, Propiconazole) veya Strobilurin grubu fungisitler uygulanmalıdır.",
+      "Hastalık baskısı devam ederse etiket süresine göre 14-21 gün sonra 2. ilaçlama yapılmalıdır."
+    ]
+  },
+  "brown_rust": {
+    "name": "Brown Rust",
+    "name_tr": "Kahverengi Pas (Yaprak Pası)",
+    "scientific_name": "Puccinia triticina",
+    "severity": "disease",
+    "risk_level": "medium",
+    "short_desc": "Yaprak üst yüzeyinde dağınık, dairesel turuncu-kahverengi püstüller.",
+    "description": "Puccinia triticina kaynaklı, ılık ve nemli hava koşullarında yaygınlaşan yaprak pası hastalığıdır. Püstüller sarı pas gibi çizgisel değil, yaprak yüzeyine rastgele dağılmıştır.",
+    "symptoms": [
+      "Yaprak ayasında düzensiz dağılmış dairesel veya oval turuncu-kahverengi püstüller",
+      "Bayrak yaprağının erken kuruması",
+      "Tane dolum döneminde verim ve bin dane ağırlığı kaybı"
+    ],
+    "cultural_treatment": [
+      "Hasat sonrası anız imha edilmeli veya derine sürülmelidir.",
+      "Gereksiz aşırı sulamadan kaçınılmalıdır.",
+      "Dirençli varyeteler ekilmelidir."
+    ],
+    "chemical_treatment": [
+      "Hastalık yaprak alanının %5'ine ulaştığında Triazole içerikli fungisit uygulaması yapılmalıdır."
+    ]
+  },
+  "black_rust": {
+    "name": "Black Rust",
+    "name_tr": "Kara Pas (Gövde Pası)",
+    "scientific_name": "Puccinia graminis f. sp. tritici",
+    "severity": "disease",
+    "risk_level": "critical",
+    "short_desc": "Gövde ve yapraklarda koyu kırmızı-kahverengi, uzunlamasına yırtıcı lezyonlar.",
+    "description": "Puccinia graminis'in yol açtığı, gövdeyi kuşatarak bitkinin yatmasına ve tam verim kaybına neden olabilen en agresif buğday pası türüdür.",
+    "symptoms": [
+      "Gövde ve yaprak kınında epidermis yırtan koyu kırmızımsı-kahverengi büyük püstüller",
+      "Olgunlaşma döneminde püstüllerin siyah renge dönmesi (teliosporlar)",
+      "Gövdenin zayıflayarak kırılması ve yatması (lodging)"
+    ],
+    "cultural_treatment": [
+      "Ara konukçu olan Berberis (Kadıntuzluğu) çalıları tarla sınırlarından temizlenmelidir.",
+      "Erkenci ve dayanıklı çeşitler tercih edilmelidir.",
+      "Hasat olgunluğuna gelen ürün zaman kaybetmeden hasat edilmelidir."
+    ],
+    "chemical_treatment": [
+      "Acil sistemik fungisit (Azoxystrobin + Difenoconazole veya Tebuconazole) tatbik edilmeli ve tarım il müdürlüğüne bilgi verilmelidir."
+    ]
+  },
+  "septoria": {
+    "name": "Septoria",
+    "name_tr": "Septorya Yaprak Lekesi",
+    "scientific_name": "Zymoseptoria tritici",
+    "severity": "disease",
+    "risk_level": "high",
+    "short_desc": "Yapraklarda kahverengi nekrotik lekeler ve içlerinde siyah küçük noktacıklar (piknitler).",
+    "description": "Zymoseptoria tritici mantarının neden olduğu, yağış sıçraması ile alt yapraklardan üst bayrak yaprağına doğru tırmanan yaygın bir yaprak leke hastalığıdır.",
+    "symptoms": [
+      "İlk olarak alt yapraklarda sarımsı haleli oval lekeler",
+      "Zamanla kuruyan lekelerin üzerinde iğne ucu büyüklüğünde siyah noktacıklar (piknitler)",
+      "Bayrak yaprağının fotosentez yapamaz hale gelerek kuruması"
+    ],
+    "cultural_treatment": [
+      "En az 2 yıllık münavebe (ekim nöbeti) uygulanmalıdır.",
+      "Sertifikalı ve mantar ilacıyla ilaçlanmış tohumlar kullanılmalıdır.",
+      "Toprak yüzeyindeki bitki artıkları derine gömülmelidir."
+    ],
+    "chemical_treatment": [
+      "Kardeşlenme sonu - sapa kalkma döneminde SDHI veya Triazole grubu koruyucu ve tedavi edici fungisitler uygulanmalıdır."
+    ]
+  },
+  "fusarium_head_blight": {
+    "name": "Fusarium Head Blight",
+    "name_tr": "Fusarium Başak Yanıklığı",
+    "scientific_name": "Fusarium graminearum / culmorum",
+    "severity": "disease",
+    "risk_level": "critical",
+    "short_desc": "Başakçıklarda erken beyazlaşma, pembe-turuncu küf tabakası ve mikotoksin riski.",
+    "description": "Çiçeklenme evresinde yağışlı ve sıcak havalarda başağı enfekte eden, taneleri büzüştüren ve sağlığa zararlı mikotoksinler (DON / Vomitoksin) üreten tehlikeli bir fungal hastalıktır.",
+    "symptoms": [
+      "Başağın tamamında veya bir kısmında erken beyazlaşma ve ağarma",
+      "Başakçık ekseninde ve kavuz aralarında pembe-somon rengi spor kitleleri",
+      "Büzüşmüş, kireçli beyaz ve cansız dane oluşumu"
+    ],
+    "cultural_treatment": [
+      "Mısır anızının hemen ardından buğday ekilmemelidir (mısır ana konukçudur).",
+      "Hasat edilen daneler hızlıca kurutulmalı ve nemsiz depolanmalıdır.",
+      "Enfekte olmuş ürünler hayvan yemi veya un yapımında kullanılmamalıdır."
+    ],
+    "chemical_treatment": [
+      "Çiçeklenme başlangıcında (%20-50 başak çıkışı) Prothioconazole veya Metconazole etken maddeli spesifik fungisitler uygulanmalıdır."
+    ]
+  },
+  "mildew": {
+    "name": "Mildew",
+    "name_tr": "Külleme (Powdery Mildew)",
+    "scientific_name": "Blumeria graminis f. sp. tritici",
+    "severity": "disease",
+    "risk_level": "medium",
+    "short_desc": "Yaprak ve gövde üzerinde un serpilmiş gibi beyaz pamuksu tabaka.",
+    "description": "Blumeria graminis'in neden olduğu, yüksek nem ve sık ekimde hava akımının az olduğu tarlalarda yaprak yüzeyini kaplayan beyaz misel örtüsüdür.",
+    "symptoms": [
+      "Yaprakların üst yüzeyinde beyaz, unumsu pudra benzeri lekeler",
+      "İlerleyen evrede lekelerin gri-kahverengine dönmesi ve siyah kleistotesyum oluşumu",
+      "Yaprakların sararması ve erken kuruması"
+    ],
+    "cultural_treatment": [
+      "Sık ekimden kaçınılmalı, havalanma sağlanmalıdır.",
+      "Fazla azotlu gübrelemeden kesinlikle kaçınılmalıdır.",
+      "Dayanıklı çeşitler tercih edilmelidir."
+    ],
+    "chemical_treatment": [
+      "Külleme tarlada ilk görüldüğünde Kükürt, Cyflufenamid veya Triazole türevi fungisitler tatbik edilmelidir."
+    ]
+  },
+  "smut": {
+    "name": "Smut",
+    "name_tr": "Rastık (Açık/Kapalı Rastık)",
+    "scientific_name": "Ustilago tritici / Tilletia caries",
+    "severity": "disease",
+    "risk_level": "high",
+    "short_desc": "Başak tanelerinin yerine siyah toz şeklinde mantar sporlarının dolması.",
+    "description": "Tohum kaynaklı bulaşan, başak çıkışında dane yerine tamamen siyah is/kurum benzeri spor kitleleri oluşturan fungal hastalıktır.",
+    "symptoms": [
+      "Başaktaki bütün danelerin siyah toz yığınına dönüşmesi",
+      "Rüzgarla sporların savrulup geriye sadece çıplak başak ekseninin kalması",
+      "Kapalı rastıkta çürük balık kokusu ve siyah ezik daneler"
+    ],
+    "cultural_treatment": [
+      "Kesinlikle sertifikalı ve tohum ilacı uygulanmış tohumluk kullanılmalıdır.",
+      "Hastalık görülen tarlalardan tohumluk ayrılmamalıdır.",
+      "Enfekte başaklar tarladan uzaklaştırılarak imha edilmelidir."
+    ],
+    "chemical_treatment": [
+      "Ekim öncesi tohumlar mutlaka Difenoconazole, Fludioxonil veya Carboxin içeren tohum ilaçları ile ilaçlanmalıdır."
+    ]
+  },
+  "blast": {
+    "name": "Blast",
+    "name_tr": "Buğday Yanıklığı (Wheat Blast)",
+    "scientific_name": "Magnaporthe oryzae (Pyricularia oryzae)",
+    "severity": "disease",
+    "risk_level": "critical",
+    "short_desc": "Başakların aniden beyazlaşarak kuruması, elmas şeklinde yaprak lezyonları.",
+    "description": "Karantina kapsamında değerlendirilen, sıcak ve çok nemli şartlarda başakların tamamen kurumasına ve %100'e varan ürün kaybına neden olabilen tahripkar bir patojendir.",
+    "symptoms": [
+      "Başak boynundan yukarısının aniden bembeyaz kuruması",
+      "Yapraklarda gri merkezli, kahverengi sınırlı elmas/göz şeklinde lezyonlar",
+      "Boş veya deforme taneler"
+    ],
+    "cultural_treatment": [
+      "Karantina kurallarına kesinlikle uyulmalı, şüpheli alanlar bildirilmelidir.",
+      "Ekim zamanı optimize edilerek başaklanmanın aşırı yağışlı-sıcak döneme gelmesi önlenmelidir."
+    ],
+    "chemical_treatment": [
+      "Trifloxystrobin + Tebuconazole veya Strobilurin grubu fungisitler başak çıkışında koruyucu olarak uygulanmalıdır."
+    ]
+  },
+  "aphid": {
+    "name": "Aphid",
+    "name_tr": "Yaprak Biti (Afid)",
+    "scientific_name": "Rhopalosiphum padi / Sitobion avenae",
+    "severity": "warning",
+    "risk_level": "medium",
+    "short_desc": "Yaprak ve başaklarda koloni oluşturan, özsu emen küçük böcekler.",
+    "description": "Bitki özsuyunu emerek zayıflatan ve ayrıca 'Arpa Sarı Cücelik Virüsü' (BYDV) gibi viral hastalıkları taşıyıp bulaştıran zararlıdır.",
+    "symptoms": [
+      "Yaprak kınında ve başaklarda yoğun yeşil/siyah böcek kolonileri",
+      "Bitkide sararma, bodurlaşma ve yapışkan tatlımsı madde (balımsı madde) birikimi",
+      "İkincil olarak balımsı madde üzerinde siyah fümajinküfü gelişimi"
+    ],
+    "cultural_treatment": [
+      "Doğal avcıların (uğur böceği, parazitoid arılar) korunması teşvik edilmelidir.",
+      "Aşırı ve tek yönlü azotlu gübreleme afid popülasyonunu artırdığı için dengeli gübreleme yapılmalıdır."
+    ],
+    "chemical_treatment": [
+      "Ekonomik zarar eşiği (metrekarede veya sapa başına kritik böcek sayısı) aşıldığında Deltamethrin, Acetamiprid veya Flonicamid ile insektisit uygulaması yapılmalıdır."
+    ]
+  },
+  "mite": {
+    "name": "Mite",
+    "name_tr": "Kırmızı Örümcek / Akar (Buğday Akarı)",
+    "scientific_name": "Penthaleus major / Petrobia latens",
+    "severity": "warning",
+    "risk_level": "medium",
+    "short_desc": "Gümüşi yaprak lekeleri, kıvrılmış yaprak uçları ve ince ağ tabakaları.",
+    "description": "Kurak ve sıcak mevsimlerde yaprak hücrelerini delip özsuyu emerek yapraklara gümüşi-bronz bir görünüm veren mikroskobik eklembacaklılardır.",
+    "symptoms": [
+      "Yapraklarda gümüşümsü beyaz beneklenme ve bronzlaşma",
+      "Şiddetli kuraklıkta yaprak uçlarının sararıp kuruması",
+      "Bitkide gelişim geriliği"
+    ],
+    "cultural_treatment": [
+      "Tarla sulaması düzenli yapılarak kuraklık stresi hafifletilmelidir.",
+      "Yabancı otlar ve tarla sınırındaki kurumuş bitki artıkları temizlenmelidir."
+    ],
+    "chemical_treatment": [
+      "Zararlı yoğunluğunda spesifik akarisitler veya kükürt içerikli preparatlar uygulanabilir."
+    ]
+  },
+  "stem_fly": {
+    "name": "Stem fly",
+    "name_tr": "Ekin Sap Arısı / Sap Sineği",
+    "scientific_name": "Cephus pygmaeus / Mayetiola destructor",
+    "severity": "disease",
+    "risk_level": "high",
+    "short_desc": "Gövde içine giren larvalar nedeniyle başakların dik kalıp kuruması ve kırılması.",
+    "description": "Larvaları buğday sapının içinde beslenerek iletim demetlerini kesen ve rüzgarda sapların dipten kırılarak yatmasına yol açan zararlıdır.",
+    "symptoms": [
+      "Süt olum döneminde başakların aniden beyazlaşması ('Akbaşak' belirtisi)",
+      "Sap içinde testere tozu benzeri larva dışkısı",
+      "Hasada yakın sapın dipten kolayca kırılıp devrilmesi"
+    ],
+    "cultural_treatment": [
+      "Hasat sonrası anız derin sürümle toprağa gömülerek kışlayan larvalar yok edilmelidir.",
+      "Gövdesi kalın ve dolgun saplı (solid stem) buğday çeşitleri seçilmelidir.",
+      "Münavebeye özen gösterilmelidir."
+    ],
+    "chemical_treatment": [
+      "Ergin uçuş zamanı tespit edilerek yumurtlama öncesi temas etkili insektisitlerle mücadele edilir."
+    ]
+  },
+  "leaf_blight": {
+    "name": "Leaf Blight",
+    "name_tr": "Yaprak Yanıklığı (Helminthosporium Blight)",
+    "scientific_name": "Bipolaris sorokiniana",
+    "severity": "disease",
+    "risk_level": "high",
+    "short_desc": "Genişleyen kahverengi nekrotik lekeler, yaprak dokusunun kuruması.",
+    "description": "Yüksek sıcaklık ve nemde yapraklarda hızla birleşen düzensiz kahverengi nekrotik lekeler meydana getiren fungal hastalıktır.",
+    "symptoms": [
+      "Yapraklarda küçük sarı-kahverengi lekelerin genişleyerek geniş nekrotik alanlar oluşturması",
+      "Yaprakların erken dönemde tamamen yanıp kuruması",
+      "Dane veriminde ve kalitesinde düşüş"
+    ],
+    "cultural_treatment": [
+      "Dirençli tohumluk kullanımı.",
+      "Toprak havalandırmasının artırılması ve drenajın iyileştirilmesi.",
+      "Ekim nöbeti uygulanması."
+    ],
+    "chemical_treatment": [
+      "Propiconazole, Azoxystrobin veya Mancozeb grubu fungisitlerle ilaçlama yapılmalıdır."
+    ]
+  },
+  "tan_spot": {
+    "name": "Tan spot",
+    "name_tr": "Sarı Leke Hastalığı (Tan Spot)",
+    "scientific_name": "Pyrenophora tritici-repentis",
+    "severity": "disease",
+    "risk_level": "medium",
+    "short_desc": "Ortasında koyu nokta olan sarı haleli ten/açık kahverengi oval lekeler.",
+    "description": "Pyrenophora tritici-repentis kaynaklı, anızda kışlayan ve ilkbaharda yağışla yapraklara sıçrayan karakteristik haleli leke hastalığıdır.",
+    "symptoms": [
+      "Ortasında koyu kahverengi bir nekroz noktası bulunan oval sarı haleli (tan) lekeler",
+      "Lekelerin birleşerek yaprak ucundan geriye doğru kurumaya yol açması",
+      "Fotosentez yüzeyinin azalması"
+    ],
+    "cultural_treatment": [
+      "Doğrudan anıza ekim yapılan alanlarda anız yönetimine dikkat edilmelidir.",
+      "Buğday üst üste ekilmemeli, baklagil veya yağlı tohumlarla rotasyon yapılmalıdır."
+    ],
+    "chemical_treatment": [
+      "Sapa kalkma ve bayrak yaprağı aşamalarında koruyucu/tedavi edici fungisit uygulanmalıdır."
+    ]
+  },
+  "common_root_rot": {
+    "name": "Common Root Rot",
+    "name_tr": "Kök ve Kök Boğazı Çürüklüğü",
+    "scientific_name": "Cochliobolus sativus / Fusarium spp.",
+    "severity": "disease",
+    "risk_level": "high",
+    "short_desc": "Kök boğazında ve sap tabanında kahverengi-siyah çürüme, bitkide solgunluk.",
+    "description": "Toprak ve tohum kaynaklı patojenlerin kök sistemini ve sap tabanını tahrip ederek su ve besin iletimini durdurduğu çürüklük kompleksidir.",
+    "symptoms": [
+      "Kök boğazında ve birinci boğumda koyu kahverengi/siyah nekroz ve çürüme",
+      "Köklerin kahverengileşmesi, saçak kök sayısının azalması",
+      "Bitkilerin kolayca topraktan sökülmesi ve erken kurumuş akbaşak oluşumu"
+    ],
+    "cultural_treatment": [
+      "Toprak sıkışıklığı giderilmeli ve taban suyu tahliye edilmelidir.",
+      "Derin ekimden kaçınılmalı, optimum tohum yatağı hazırlanmalıdır.",
+      "En az 2-3 yıl konukçu olmayan bitkilerle ekim nöbeti yapılmalıdır."
+    ],
+    "chemical_treatment": [
+      "Tohumlar ekim öncesi sistemik fungusitlerle (örn. Fludioxonil + Metalaxyl) mutlak suretle kaplanmalıdır."
+    ]
   }
 }

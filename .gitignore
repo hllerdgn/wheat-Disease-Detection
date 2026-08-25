@@ -20,9 +20,12 @@ Thumbs.db
 *.sublime-workspace
 
 # --- Backend (BACKEND/) ---
-BACKEND/__pycache__/
-BACKEND/*.py[cod]
-BACKEND/*$py.class
+__pycache__/
+**/__pycache__/
+*.py[cod]
+**/*.py[cod]
+*$py.class
+**/*$py.class
 BACKEND/*.so
 BACKEND/.Python
 BACKEND/build/

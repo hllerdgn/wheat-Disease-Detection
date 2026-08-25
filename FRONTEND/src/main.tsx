@@ -1,12 +1,13 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import SimpleApp from './app/SimpleApp.tsx'
-import { Toaster } from 'sonner'
-import './styles/index.css'
+import React from "react";
+import ReactDOM from "react-dom/client";
+import App from "./App";
+import "./index.css";
+import { LanguageProvider } from "./context/LanguageContext";
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <SimpleApp />
-    <Toaster position="top-right" richColors />
-  </StrictMode>,
-)
+ReactDOM.createRoot(document.getElementById("root")!).render(
+  <React.StrictMode>
+    <LanguageProvider>
+      <App />
+    </LanguageProvider>
+  </React.StrictMode>
+);
