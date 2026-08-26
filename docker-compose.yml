@@ -1,0 +1,56 @@
+version: "3.8"
+
+services:
+  # ── PostgreSQL Database ───────────────────────────────────────────────────────
+  postgres:
+    image: postgres:15-alpine
+    container_name: wheat_disease_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: wheat_disease_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d wheat_disease_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - wheat_network
+
+  # ── FastAPI Backend API Service ───────────────────────────────────────────────
+  backend:
+    build:
+      context: ./BACKEND
+      dockerfile: Dockerfile
+    container_name: wheat_disease_backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres:5432/wheat_disease_db
+      - AUTH_ENABLED=true
+      - API_KEYS=wheat-api-key-2026,production-secret-key
+      - HOST=0.0.0.0
+      - PORT=8000
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./BACKEND/models/checkpoints:/app/models/checkpoints
+      - ./BACKEND/results:/app/results
+      - ./BACKEND/logs:/app/logs
+    networks:
+      - wheat_network
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  wheat_network:
+    driver: bridge

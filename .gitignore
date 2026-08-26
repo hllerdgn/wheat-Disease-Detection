@@ -89,6 +89,14 @@ FRONTEND/pnpm-debug.log*
 .env.production.local
 *.env*
 
-# --- Misc ---
+# --- Misc & Backups ---
 BACKEND/download_test.py
 kaggle.json
+*.zip
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+tests/coverage_html/
+.pytest_cache/
+

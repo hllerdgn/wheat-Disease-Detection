@@ -79,6 +79,29 @@ class Settings(BaseConfig):
     CONFIDENCE_THRESHOLD: float = 0.50
     DEFAULT_DEVICE: str = "cuda"  # Auto fallbacks to cpu if cuda not available
 
+    # Authentication & Security
+    AUTH_ENABLED: bool = True
+    API_KEYS: str = "wheat-api-key-2026,dev-secret-key"
+    API_KEY_HEADER: str = "X-API-Key"
+
+    # Rate Limiting
+    RATE_LIMIT_ENABLED: bool = True
+    RATE_LIMIT_ANALYZE: str = "10/minute"
+    RATE_LIMIT_DEFAULT: str = "60/minute"
+
+    # Database Settings (PostgreSQL + SQLAlchemy Async)
+    DATABASE_URL: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/wheat_disease_db"
+    DATABASE_ECHO: bool = False
+
+    @property
+    def valid_api_keys(self) -> List[str]:
+        """Returns list of valid API keys parsed from settings."""
+        if isinstance(self.API_KEYS, str):
+            return [k.strip() for k in self.API_KEYS.split(",") if k.strip()]
+        elif isinstance(self.API_KEYS, (list, tuple, set)):
+            return [str(k).strip() for k in self.API_KEYS if str(k).strip()]
+        return ["wheat-api-key-2026"]
+
 
 settings = Settings()
 

@@ -7,11 +7,15 @@ from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 
+from slowapi.middleware import SlowAPIMiddleware
+
 from app.core.config import settings
 from app.core.logging import app_logger
+from app.core.limiter import limiter
 from app.core.exceptions import register_exception_handlers
 from app.middlewares.request_id import RequestIDMiddleware
 from app.middlewares.process_time import ProcessTimeMiddleware
+from app.middlewares.auth import APIKeyAuthMiddleware
 from app.services.inference_service import inference_service
 from app.services.disease_service import disease_service
 from app.api.v1.router import api_v1_router
@@ -44,6 +48,9 @@ def create_application() -> FastAPI:
         openapi_url="/openapi.json",
     )
 
+    # Attach Rate Limiter to app state
+    app.state.limiter = limiter
+
     # 1. CORS Middleware
     app.add_middleware(
         CORSMiddleware,
@@ -56,6 +63,8 @@ def create_application() -> FastAPI:
     # 2. Custom Middlewares
     app.add_middleware(ProcessTimeMiddleware)
     app.add_middleware(RequestIDMiddleware)
+    app.add_middleware(SlowAPIMiddleware)
+    app.add_middleware(APIKeyAuthMiddleware)
 
     # 3. Global Exception Handlers
     register_exception_handlers(app)

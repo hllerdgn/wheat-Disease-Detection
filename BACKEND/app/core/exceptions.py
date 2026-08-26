@@ -86,15 +86,86 @@ class DiseaseNotFoundException(AppException):
         )
 
 
+class AuthenticationException(AppException):
+    """Raised when authentication fails or API key is missing/invalid."""
+
+    def __init__(
+        self,
+        message: str = "Invalid or missing API key. Please provide a valid 'X-API-Key' header.",
+        details: Optional[Dict[str, Any]] = None,
+    ):
+        super().__init__(
+            message=message,
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            error_code="UNAUTHORIZED",
+            details=details or {"header": "X-API-Key"},
+        )
+
+
+class RateLimitExceededException(AppException):
+    """Raised when rate limit is exceeded."""
+
+    def __init__(
+        self,
+        message: str = "Too many requests. Rate limit exceeded.",
+        retry_after: Optional[int] = 60,
+        details: Optional[Dict[str, Any]] = None,
+    ):
+        det = details or {}
+        if retry_after is not None:
+            det["retry_after_seconds"] = retry_after
+        super().__init__(
+            message=message,
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            error_code="RATE_LIMIT_EXCEEDED",
+            details=det,
+        )
+
+
 def register_exception_handlers(app: FastAPI) -> None:
     """Register custom exception handlers with FastAPI application."""
+
+    try:
+        from slowapi.errors import RateLimitExceeded
+
+        @app.exception_handler(RateLimitExceeded)
+        async def slowapi_rate_limit_handler(request: Request, exc: RateLimitExceeded):
+            app_logger.warning(
+                f"Rate limit exceeded on {request.url.path} from {request.client.host if request.client else 'unknown'}: {exc.detail}"
+            )
+            # Standard retry-after in seconds (default to 60 or parse from limit)
+            retry_after = 60
+            if hasattr(exc, "retry_after") and isinstance(exc.retry_after, int):
+                retry_after = exc.retry_after
+
+            response = JSONResponse(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                content={
+                    "success": False,
+                    "error": {
+                        "code": "RATE_LIMIT_EXCEEDED",
+                        "message": f"Too many requests. Rate limit exceeded: {exc.detail}",
+                        "details": {
+                            "limit": str(exc.detail),
+                            "retry_after_seconds": retry_after,
+                            "hint": "Please wait before making additional requests.",
+                        },
+                        "path": request.url.path,
+                    },
+                },
+            )
+            response.headers["Retry-After"] = str(retry_after)
+            return response
+
+    except ImportError:
+        pass
 
     @app.exception_handler(AppException)
     async def app_exception_handler(request: Request, exc: AppException):
         app_logger.warning(
             f"AppException: {exc.error_code} - {exc.message} | URL: {request.url.path} | Details: {exc.details}"
         )
-        return JSONResponse(
+        response = JSONResponse(
             status_code=exc.status_code,
             content={
                 "success": False,
@@ -106,6 +177,10 @@ def register_exception_handlers(app: FastAPI) -> None:
                 },
             },
         )
+        if exc.status_code == status.HTTP_429_TOO_MANY_REQUESTS:
+            retry_sec = exc.details.get("retry_after_seconds", 60)
+            response.headers["Retry-After"] = str(retry_sec)
+        return response
 
     @app.exception_handler(RequestValidationError)
     async def validation_exception_handler(request: Request, exc: RequestValidationError):

@@ -1,48 +1,135 @@
 """
-History Service - Manages storing and retrieving analysis results.
+History Service - Manages persisting and querying analysis history using PostgreSQL + SQLAlchemy (async).
 """
 
 import json
-import time
+import hashlib
 from datetime import datetime
 from pathlib import Path
 from typing import List, Optional, Dict, Any
 
+from sqlalchemy import select, desc
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.core.config import settings
 from app.core.logging import app_logger
+from app.db.session import AsyncSessionLocal
+from app.db.models import AnalysisHistory
 from app.schemas.history import HistoryItem, HistoryListResponse
 from app.schemas.analysis import AnalyzeResponse
 
 
 class HistoryService:
-    """Service to archive analysis runs into JSON files in results directory."""
+    """Service to persist and query inference records in PostgreSQL with JSON file fallback."""
 
     def __init__(self, results_dir: Optional[Path] = None):
         self.results_dir = results_dir or settings.RESULTS_DIR
         self.results_dir.mkdir(parents=True, exist_ok=True)
 
-    def save_analysis(self, response: AnalyzeResponse, filename: Optional[str] = None) -> Path:
-        """Saves analysis result as a JSON record."""
-        timestamp_str = datetime.now().strftime("%Y%m%d_%H%M%S")
-        target_name = filename or f"results_{timestamp_str}.json"
-        target_path = self.results_dir / target_name
+    @staticmethod
+    def calculate_image_hash(image_bytes: Optional[bytes]) -> Optional[str]:
+        """Computes SHA-256 hash of the input image bytes."""
+        if not image_bytes:
+            return None
+        return hashlib.sha256(image_bytes).hexdigest()
 
-        data = {
-            "timestamp": datetime.now().isoformat(),
-            "data": response.model_dump(by_alias=True),
-        }
+    async def save_analysis(
+        self,
+        response: AnalyzeResponse,
+        filename: Optional[str] = None,
+        request_id: Optional[str] = None,
+        image_bytes: Optional[bytes] = None,
+    ) -> Optional[int]:
+        """
+        Persists analysis result asynchronously into PostgreSQL database.
+        Also saves a backup JSON record to the results directory.
+        """
+        image_hash = self.calculate_image_hash(image_bytes)
+        top3_data = [
+            {"class": item.class_, "score": item.score}
+            for item in response.classification.top3_predictions
+        ]
+        full_payload = response.model_dump(by_alias=True)
 
+        record_id = None
+
+        # 1. Attempt Async Database Persistence
+        if AsyncSessionLocal is not None:
+            try:
+                async with AsyncSessionLocal() as session:
+                    history_record = AnalysisHistory(
+                        request_id=request_id,
+                        image_hash=image_hash,
+                        filename=filename or "uploaded_image.jpg",
+                        predicted_class=response.classification.predicted_class,
+                        confidence=response.classification.confidence,
+                        is_certain=response.classification.is_certain,
+                        blur_score=response.quality.blur_score,
+                        processing_time_ms=response.meta.processing_time_ms,
+                        top3_probs=top3_data,
+                        full_response=full_payload,
+                    )
+                    session.add(history_record)
+                    await session.commit()
+                    await session.refresh(history_record)
+                    record_id = history_record.id
+                    app_logger.info(f"Persisted analysis #{record_id} ({response.classification.predicted_class}) to PostgreSQL")
+            except Exception as e:
+                app_logger.warning(f"Failed to persist analysis to PostgreSQL (falling back to disk): {e}")
+
+        # 2. JSON File Backup Persistence
         try:
+            timestamp_str = datetime.now().strftime("%Y%m%d_%H%M%S")
+            target_name = filename or f"results_{timestamp_str}.json"
+            target_path = self.results_dir / target_name
+            backup_data = {
+                "id": record_id,
+                "request_id": request_id,
+                "image_hash": image_hash,
+                "timestamp": datetime.now().isoformat(),
+                "data": full_payload,
+            }
             with open(target_path, "w", encoding="utf-8") as f:
-                json.dump(data, f, indent=2, ensure_ascii=False)
-            app_logger.debug(f"Saved analysis record to {target_path}")
+                json.dump(backup_data, f, indent=2, ensure_ascii=False)
         except Exception as e:
-            app_logger.warning(f"Failed to persist analysis record to disk: {e}")
+            app_logger.warning(f"Failed to save JSON backup: {e}")
 
-        return target_path
+        return record_id
 
-    def get_recent_history(self, limit: int = 50) -> HistoryListResponse:
-        """Returns the most recent analysis records."""
+    async def get_recent_history(self, limit: int = 50) -> HistoryListResponse:
+        """
+        Retrieves the most recent analysis records from PostgreSQL.
+        Falls back to local results directory if database is unavailable.
+        """
+        if AsyncSessionLocal is not None:
+            try:
+                async with AsyncSessionLocal() as session:
+                    stmt = select(AnalysisHistory).order_by(desc(AnalysisHistory.created_at)).limit(limit)
+                    result = await session.execute(stmt)
+                    db_records = result.scalars().all()
+
+                    if db_records:
+                        items = [
+                            HistoryItem(
+                                filename=rec.filename or f"analysis_{rec.id}.jpg",
+                                timestamp=rec.created_at.isoformat() if rec.created_at else datetime.utcnow().isoformat(),
+                                predicted_class=rec.predicted_class,
+                                confidence=rec.confidence,
+                                is_certain=rec.is_certain,
+                                blur_score=rec.blur_score or 0.0,
+                                processing_time_ms=rec.processing_time_ms or 0.0,
+                            )
+                            for rec in db_records
+                        ]
+                        return HistoryListResponse(total_records=len(items), records=items)
+            except Exception as e:
+                app_logger.warning(f"Could not fetch history from PostgreSQL, using file fallback: {e}")
+
+        # File-based fallback
+        return self._get_recent_history_from_files(limit=limit)
+
+    def _get_recent_history_from_files(self, limit: int = 50) -> HistoryListResponse:
+        """Fallback to read recent history from filesystem."""
         json_files = sorted(
             self.results_dir.glob("results_*.json"),
             key=lambda p: p.stat().st_mtime,
@@ -76,14 +163,28 @@ class HistoryService:
 
         return HistoryListResponse(total_records=len(records), records=records)
 
-    def get_history_detail(self, filename: str) -> Optional[Dict[str, Any]]:
-        """Fetch complete JSON content of a specific history file."""
-        target_path = self.results_dir / filename
-        if not target_path.exists() or not target_path.name.endswith(".json"):
-            return None
+    async def get_history_detail(self, identifier: str) -> Optional[Dict[str, Any]]:
+        """
+        Fetch full analysis record by primary key ID or filename from DB or disk.
+        """
+        # Check if identifier is integer ID for DB lookup
+        if identifier.isdigit() and AsyncSessionLocal is not None:
+            try:
+                record_id = int(identifier)
+                async with AsyncSessionLocal() as session:
+                    rec = await session.get(AnalysisHistory, record_id)
+                    if rec:
+                        return rec.to_dict()
+            except Exception as e:
+                app_logger.warning(f"Failed to fetch record {identifier} from DB: {e}")
 
-        with open(target_path, "r", encoding="utf-8") as f:
-            return json.load(f)
+        # File lookup fallback
+        target_path = self.results_dir / identifier
+        if target_path.exists() and target_path.name.endswith(".json"):
+            with open(target_path, "r", encoding="utf-8") as f:
+                return json.load(f)
+
+        return None
 
 
 history_service = HistoryService()

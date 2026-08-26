@@ -79,3 +79,26 @@ class BatchAnalyzeResponse(BaseModel):
     failed_count: int
     total_processing_time_ms: float
     items: List[BatchItemResponse]
+
+
+class AsyncAnalyzeSubmitResponse(BaseModel):
+    """Response returned when an asynchronous analysis task is submitted."""
+
+    job_id: str = Field(..., description="Unique asynchronous job identifier (UUID)")
+    status: str = Field("PENDING", description="Current status: PENDING, PROCESSING, COMPLETED, FAILED")
+    created_at: str = Field(..., description="ISO timestamp when the job was accepted")
+    poll_url: str = Field(..., description="Polling endpoint URL to retrieve job result")
+    message: str = Field("Analysis job queued successfully", description="Status message")
+
+
+class AsyncAnalyzeStatusResponse(BaseModel):
+    """Status and result response for polled asynchronous job."""
+
+    job_id: str = Field(..., description="Unique asynchronous job identifier")
+    status: str = Field(..., description="Job status: PENDING, PROCESSING, COMPLETED, FAILED")
+    created_at: str = Field(..., description="ISO creation timestamp")
+    completed_at: Optional[str] = Field(None, description="ISO completion timestamp if finished")
+    processing_time_ms: Optional[float] = Field(None, description="Total execution time in ms")
+    result: Optional[AnalyzeResponse] = Field(None, description="Full inference result if completed")
+    error: Optional[str] = Field(None, description="Error message if task failed")
+

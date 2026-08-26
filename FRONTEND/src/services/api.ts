@@ -6,6 +6,11 @@ import type {
 } from "@/types/prediction";
 
 const BASE_URL = (import.meta.env.VITE_API_URL as string | undefined) ?? "http://localhost:8000";
+const API_KEY = (import.meta.env.VITE_API_KEY as string | undefined) ?? "wheat-api-key-2026";
+
+const defaultHeaders: Record<string, string> = {
+  "X-API-Key": API_KEY,
+};
 
 export async function analyzeImage(file: File, skipQuality: boolean = false): Promise<AnalyzeResponse> {
   const formData = new FormData();
@@ -14,6 +19,9 @@ export async function analyzeImage(file: File, skipQuality: boolean = false): Pr
   const queryParams = skipQuality ? "?skip_quality=true" : "";
   const response = await fetch(`${BASE_URL}/analyze${queryParams}`, {
     method: "POST",
+    headers: {
+      "X-API-Key": API_KEY,
+    },
     body: formData,
   });
 
@@ -28,6 +36,7 @@ export async function analyzeImage(file: File, skipQuality: boolean = false): Pr
 export async function checkHealth(): Promise<HealthResponse> {
   const response = await fetch(`${BASE_URL}/health`, {
     method: "GET",
+    headers: defaultHeaders,
     signal: AbortSignal.timeout(5000),
   });
 
@@ -38,6 +47,7 @@ export async function checkHealth(): Promise<HealthResponse> {
 export async function getSupportedDiseases(): Promise<DiseaseListResponse> {
   const response = await fetch(`${BASE_URL}/diseases`, {
     method: "GET",
+    headers: defaultHeaders,
   });
 
   if (!response.ok) throw new Error("Failed to fetch supported diseases");
@@ -47,8 +57,10 @@ export async function getSupportedDiseases(): Promise<DiseaseListResponse> {
 export async function getDiseaseDetail(diseaseName: string): Promise<DiseaseDetail> {
   const response = await fetch(`${BASE_URL}/diseases/${encodeURIComponent(diseaseName)}`, {
     method: "GET",
+    headers: defaultHeaders,
   });
 
   if (!response.ok) throw new Error(`Failed to fetch details for ${diseaseName}`);
   return response.json() as Promise<DiseaseDetail>;
 }
+
